@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caravan Level Meter</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .caravan {
+            width: 300px;
+            height: 200px;
+            margin: 20px auto;
+            border: 2px solid #333;
+            position: relative;
+        }
+        .corner {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            border: 2px solid #333;
+        }
+        .fl { top: -15px; left: -15px; }
+        .fr { top: -15px; right: -15px; }
+        .bl { bottom: -15px; left: -15px; }
+        .br { bottom: -15px; right: -15px; }
+        .readings {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .green { background-color: #4CAF50; color: white; }
+        .yellow { background-color: #FFC107; color: black; }
+        .red { background-color: #F44336; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 style="text-align: center;">Caravan Level Meter</h1>
+        <div class="caravan">
+            <div class="corner fl" id="fl">0</div>
+            <div class="corner fr" id="fr">0</div>
+            <div class="corner bl" id="bl">0</div>
+            <div class="corner br" id="br">0</div>
+        </div>
+        <div class="readings">
+            <p>앞뒤 기울기: <span id="fbTilt">0.0</span>°</p>
+            <p>좌우 기울기: <span id="lrTilt">0.0</span>°</p>
+        </div>
+    </div>
+
+    <script>
+        // 카라반 치수
+        const CARAVAN_LENGTH = 5600; // mm
+        const CARAVAN_WIDTH = 3200;  // mm
+
+        // 센서 권한 요청
+        if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+            DeviceOrientationEvent.requestPermission()
+                .then(response => {
+                    if (response === 'granted') {
+                        window.addEventListener('deviceorientation', handleOrientation);
+                    }
+                })
+                .catch(console.error);
+        } else {
+            window.addEventListener('deviceorientation', handleOrientation);
+        }
+
+        function handleOrientation(event) {
+            const x = event.beta;  // 앞뒤 기울기
+            const y = event.gamma; // 좌우 기울기
+
+            // 기울기 표시 업데이트
+            document.getElementById('fbTilt').textContent = x.toFixed(1);
+            document.getElementById('lrTilt').textContent = y.toFixed(1);
+
+            // 높이 차이 계산
+            const fbRadians = x * (Math.PI / 180);
+            const lrRadians = y * (Math.PI / 180);
+            
+            const fbDiff = Math.sin(fbRadians) * CARAVAN_LENGTH / 2;
+            const lrDiff = Math.sin(lrRadians) * CARAVAN_WIDTH / 2;
+
+            // 각 코너의 높이 계산
+            const heights = {
+                fl: (-fbDiff - lrDiff).toFixed(0),
+                fr: (-fbDiff + lrDiff).toFixed(0),
+                bl: (fbDiff - lrDiff).toFixed(0),
+                br: (fbDiff + lrDiff).toFixed(0)
+            };
+
+            // 코너 표시 업데이트
+            for (let corner in heights) {
+                const element = document.getElementById(corner);
+                const height = Math.abs(heights[corner]);
+                element.textContent = height;
+                
+                if (height < 10) {
+                    element.className = 'corner ' + corner + ' green';
+                } else if (height < 30) {
+                    element.className = 'corner ' + corner + ' yellow';
+                } else {
+                    element.className = 'corner ' + corner + ' red';
+                }
+            }
+        }
+    </script>
+</div>
+</body>
+</html>
