@@ -42,6 +42,7 @@
            border: 3px solid #333;
            background-color: #1a1a1a;
            position: relative;
+           overflow: hidden;  /* 추가: 버블이 바깥으로 나가지 않도록 */
        }
        .circular-bubble {
            width: 30px;
@@ -83,6 +84,7 @@
            background-color: #1a1a1a;
            border: 3px solid #333;
            position: relative;
+           overflow: hidden;  /* 추가: 버블이 바깥으로 나가지 않도록 */
        }
        .bar-level.vertical {
            width: 40px;
@@ -155,19 +157,19 @@
        <div class="outriggers">
            <div class="outrigger">
                <div>전방 좌측</div>
-               <div class="outrigger-value" id="frontLeft">0cm</div>
+               <div class="outrigger-value" id="frontLeft">0.0cm</div>
            </div>
            <div class="outrigger">
                <div>전방 우측</div>
-               <div class="outrigger-value" id="frontRight">0cm</div>
+               <div class="outrigger-value" id="frontRight">0.0cm</div>
            </div>
            <div class="outrigger">
                <div>후방 좌측</div>
-               <div class="outrigger-value" id="rearLeft">0cm</div>
+               <div class="outrigger-value" id="rearLeft">0.0cm</div>
            </div>
            <div class="outrigger">
                <div>후방 우측</div>
-               <div class="outrigger-value" id="rearRight">0cm</div>
+               <div class="outrigger-value" id="rearRight">0.0cm</div>
            </div>
        </div>
    </div>
@@ -196,10 +198,10 @@
 
            // 앞뒤 기울기에 따른 높이 + 좌우 기울기 높이를 모든 위치에 적용
            return {
-               frontLeft: beta < 0 ? Math.round(Math.abs(fbHeightDiff)) + leftHeight : leftHeight,
-               frontRight: beta < 0 ? Math.round(Math.abs(fbHeightDiff)) + rightHeight : rightHeight,
-               rearLeft: beta > 0 ? Math.round(Math.abs(fbHeightDiff)) + leftHeight : leftHeight,
-               rearRight: beta > 0 ? Math.round(Math.abs(fbHeightDiff)) + rightHeight : rightHeight
+               frontLeft: beta < 0 ? (Math.abs(fbHeightDiff) + leftHeight) : leftHeight,
+               frontRight: beta < 0 ? (Math.abs(fbHeightDiff) + rightHeight) : rightHeight,
+               rearLeft: beta > 0 ? (Math.abs(fbHeightDiff) + leftHeight) : leftHeight,
+               rearRight: beta > 0 ? (Math.abs(fbHeightDiff) + rightHeight) : rightHeight
            };
        }
 
@@ -212,26 +214,28 @@
            const limitedBeta = limitAngle(beta);
            const limitedGamma = limitAngle(gamma);
 
-           // 메인 원형 수준기 (±10도에서 최대 이동)
-           // 방향을 반대로 하기 위해 -1을 곱합니다
-           const maxMove = 85;
-           const x = (-limitedGamma / MAX_ANGLE) * maxMove;
-           const y = (-limitedBeta / MAX_ANGLE) * maxMove;
+           // 버블 크기를 고려한 최대 이동 거리 계산
+           const circularMaxMove = 60;  // 원형 수준기의 최대 이동 거리
+           const barMaxMove = 50;      // 바 수준기의 최대 이동 거리
+
+           // 메인 원형 수준기
+           const x = (-limitedGamma / MAX_ANGLE) * circularMaxMove;
+           const y = (-limitedBeta / MAX_ANGLE) * circularMaxMove;
            mainBubble.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
 
            // 세로 수준기 (앞뒤)
-           const verticalMove = (-limitedBeta / MAX_ANGLE) * 125;
+           const verticalMove = (-limitedBeta / MAX_ANGLE) * barMaxMove;
            verticalBubble.style.transform = `translate(-50%, calc(-50% + ${verticalMove}px))`;
 
            // 가로 수준기 (좌우)
-           const horizontalMove = (-limitedGamma / MAX_ANGLE) * 125;
+           const horizontalMove = (-limitedGamma / MAX_ANGLE) * barMaxMove;
            horizontalBubble.style.transform = `translate(calc(-50% + ${horizontalMove}px), -50%)`;
        }
 
        function updateOutriggerValues(heights) {
            Object.entries(heights).forEach(([position, height]) => {
                const element = document.getElementById(position);
-               const absHeight = Math.abs(height);
+               const absHeight = Math.abs(height).toFixed(1); // 소수점 1자리까지 표시
                let className = 'outrigger-value ';
                
                if (absHeight < 1) {
