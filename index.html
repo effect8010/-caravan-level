@@ -1,264 +1,266 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Caravan Level Meter</title>
-    <link rel="manifest" href="manifest.json">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <meta name="apple-mobile-web-app-title" content="Level Meter">
-    <link rel="icon" href="icon.png">
-    <style>
-        body {
-            margin: 0;
-            padding: 20px;
-            font-family: Arial, sans-serif;
-            background-color: #000;
-            color: #fff;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        .level-meters {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            align-items: center;
-        }
-        /* 원형 수준기 */
-        .circular-level {
-            width: 200px;
-            height: 200px;
-            border-radius: 50%;
-            border: 3px solid #333;
-            background-color: #1a1a1a;
-            position: relative;
-            margin: 20px auto;
-        }
-        .circular-bubble {
-            width: 30px;
-            height: 30px;
-            background: #90EE90;
-            border-radius: 50%;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            transition: all 0.1s ease;
-        }
-        .crosshair {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-        }
-        .crosshair::before, .crosshair::after {
-            content: '';
-            position: absolute;
-            background: #333;
-        }
-        .crosshair::before {
-            left: 0;
-            right: 0;
-            height: 1px;
-            top: 50%;
-        }
-        .crosshair::after {
-            top: 0;
-            bottom: 0;
-            width: 1px;
-            left: 50%;
-        }
-        /* 가로/세로 수준기 */
-        .bar-level {
-            width: 300px;
-            height: 50px;
-            background-color: #1a1a1a;
-            border: 3px solid #333;
-            position: relative;
-            margin: 10px auto;
-        }
-        .bar-level.vertical {
-            width: 50px;
-            height: 300px;
-            margin: 20px 10px;
-        }
-        .bar-bubble {
-            width: 40px;
-            height: 40px;
-            background: #90EE90;
-            border-radius: 50%;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            transition: all 0.1s ease;
-        }
-        /* 아웃트리거 표시 */
-        .outriggers {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-            margin-top: 30px;
-            background: #1a1a1a;
-            padding: 20px;
-            border-radius: 10px;
-        }
-        .outrigger {
-            text-align: center;
-            padding: 15px;
-            border: 1px solid #333;
-            border-radius: 5px;
-        }
-        .outrigger-value {
-            font-size: 24px;
-            font-weight: bold;
-            margin-top: 10px;
-        }
-        .level-green { color: #90EE90; }
-        .level-yellow { color: #FFD700; }
-        .level-red { color: #FF4444; }
-        .flex-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 20px;
-        }
-    </style>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Caravan Level Meter</title>
+   <link rel="manifest" href="manifest.json">
+   <meta name="mobile-web-app-capable" content="yes">
+   <meta name="apple-mobile-web-app-capable" content="yes">
+   <meta name="apple-mobile-web-app-status-bar-style" content="black">
+   <meta name="apple-mobile-web-app-title" content="Level Meter">
+   <link rel="icon" href="icon.png">
+   <style>
+       body {
+           margin: 0;
+           padding: 20px;
+           font-family: Arial, sans-serif;
+           background-color: #000;
+           color: #fff;
+       }
+       .container {
+           max-width: 800px;
+           margin: 0 auto;
+           padding: 20px;
+       }
+       .level-meters {
+           display: flex;
+           flex-direction: column;
+           gap: 20px;
+           align-items: center;
+       }
+       /* 원형 수준기 */
+       .circular-level {
+           width: 200px;
+           height: 200px;
+           border-radius: 50%;
+           border: 3px solid #333;
+           background-color: #1a1a1a;
+           position: relative;
+           margin: 20px auto;
+       }
+       .circular-bubble {
+           width: 30px;
+           height: 30px;
+           background: #90EE90;
+           border-radius: 50%;
+           position: absolute;
+           top: 50%;
+           left: 50%;
+           transform: translate(-50%, -50%);
+           transition: all 0.1s ease;
+       }
+       .crosshair {
+           position: absolute;
+           top: 0;
+           left: 0;
+           right: 0;
+           bottom: 0;
+       }
+       .crosshair::before, .crosshair::after {
+           content: '';
+           position: absolute;
+           background: #333;
+       }
+       .crosshair::before {
+           left: 0;
+           right: 0;
+           height: 1px;
+           top: 50%;
+       }
+       .crosshair::after {
+           top: 0;
+           bottom: 0;
+           width: 1px;
+           left: 50%;
+       }
+       /* 가로/세로 수준기 */
+       .bar-level {
+           width: 300px;
+           height: 50px;
+           background-color: #1a1a1a;
+           border: 3px solid #333;
+           position: relative;
+           margin: 10px auto;
+       }
+       .bar-level.vertical {
+           width: 50px;
+           height: 300px;
+           margin: 20px 10px;
+       }
+       .bar-bubble {
+           width: 40px;
+           height: 40px;
+           background: #90EE90;
+           border-radius: 50%;
+           position: absolute;
+           top: 50%;
+           left: 50%;
+           transform: translate(-50%, -50%);
+           transition: all 0.1s ease;
+       }
+       /* 아웃트리거 표시 */
+       .outriggers {
+           display: grid;
+           grid-template-columns: repeat(2, 1fr);
+           gap: 20px;
+           margin-top: 30px;
+           background: #1a1a1a;
+           padding: 20px;
+           border-radius: 10px;
+       }
+       .outrigger {
+           text-align: center;
+           padding: 15px;
+           border: 1px solid #333;
+           border-radius: 5px;
+       }
+       .outrigger-value {
+           font-size: 24px;
+           font-weight: bold;
+           margin-top: 10px;
+       }
+       .level-green { color: #90EE90; }
+       .level-yellow { color: #FFD700; }
+       .level-red { color: #FF4444; }
+       .flex-container {
+           display: flex;
+           justify-content: center;
+           align-items: center;
+           gap: 20px;
+       }
+   </style>
 </head>
 <body>
-    <div class="container">
-        <div class="level-meters">
-            <div class="circular-level">
-                <div class="crosshair"></div>
-                <div class="circular-bubble" id="mainBubble"></div>
-            </div>
-            
-            <div class="flex-container">
-                <div class="bar-level vertical">
-                    <div class="bar-bubble" id="verticalBubble"></div>
-                </div>
-                
-                <div class="bar-level">
-                    <div class="bar-bubble" id="horizontalBubble"></div>
-                </div>
-            </div>
-        </div>
+   <div class="container">
+       <div class="level-meters">
+           <div class="circular-level">
+               <div class="crosshair"></div>
+               <div class="circular-bubble" id="mainBubble"></div>
+           </div>
+           
+           <div class="flex-container">
+               <div class="bar-level vertical">
+                   <div class="bar-bubble" id="verticalBubble"></div>
+               </div>
+               
+               <div class="bar-level">
+                   <div class="bar-bubble" id="horizontalBubble"></div>
+               </div>
+           </div>
+       </div>
 
-        <div class="outriggers">
-            <div class="outrigger">
-                <div>전방 좌측</div>
-                <div class="outrigger-value" id="frontLeft">0mm</div>
-            </div>
-            <div class="outrigger">
-                <div>전방 우측</div>
-                <div class="outrigger-value" id="frontRight">0mm</div>
-            </div>
-            <div class="outrigger">
-                <div>후방 좌측</div>
-                <div class="outrigger-value" id="rearLeft">0mm</div>
-            </div>
-            <div class="outrigger">
-                <div>후방 우측</div>
-                <div class="outrigger-value" id="rearRight">0mm</div>
-            </div>
-        </div>
-    </div>
+       <div class="outriggers">
+           <div class="outrigger">
+               <div>전방 좌측</div>
+               <div class="outrigger-value" id="frontLeft">0cm</div>
+           </div>
+           <div class="outrigger">
+               <div>전방 우측</div>
+               <div class="outrigger-value" id="frontRight">0cm</div>
+           </div>
+           <div class="outrigger">
+               <div>후방 좌측</div>
+               <div class="outrigger-value" id="rearLeft">0cm</div>
+           </div>
+           <div class="outrigger">
+               <div>후방 우측</div>
+               <div class="outrigger-value" id="rearRight">0cm</div>
+           </div>
+       </div>
+   </div>
 
-    <script>
-        // 카라반 치수 (mm)
-        const CARAVAN_LENGTH = 7484;
-        const CARAVAN_WIDTH = 2299;
-        const MAX_ANGLE = 10; // 최대 감지 각도를 ±10도로 제한
+   <script>
+       // 카라반 치수 (mm)
+       const CARAVAN_LENGTH = 7484;
+       const CARAVAN_WIDTH = 2299;
+       const MAX_ANGLE = 10; // 최대 감지 각도를 ±10도로 제한
 
-        const mainBubble = document.getElementById('mainBubble');
-        const verticalBubble = document.getElementById('verticalBubble');
-        const horizontalBubble = document.getElementById('horizontalBubble');
+       const mainBubble = document.getElementById('mainBubble');
+       const verticalBubble = document.getElementById('verticalBubble');
+       const horizontalBubble = document.getElementById('horizontalBubble');
 
-        function calculateHeights(beta, gamma) {
-            // 실제 높이 계산을 위해서는 제한되지 않은 각도 사용
-            const fbRadians = beta * (Math.PI / 180);
-            const lrRadians = gamma * (Math.PI / 180);
-            
-            const fbHeightDiff = Math.sin(fbRadians) * (CARAVAN_LENGTH / 2);
-            const lrHeightDiff = Math.sin(lrRadians) * (CARAVAN_WIDTH / 2);
+       function calculateHeights(beta, gamma) {
+           const fbRadians = beta * (Math.PI / 180);
+           const lrRadians = gamma * (Math.PI / 180);
+           
+           // 앞뒤 기울기에 따른 높이 차이 (cm 단위로 변환)
+           const fbHeightDiff = Math.sin(fbRadians) * (CARAVAN_LENGTH / 2) / 10;
+           const lrHeightDiff = Math.sin(lrRadians) * (CARAVAN_WIDTH / 2) / 10;
 
-            return {
-                frontLeft: Math.round((-fbHeightDiff - lrHeightDiff)),
-                frontRight: Math.round((-fbHeightDiff + lrHeightDiff)),
-                rearLeft: Math.round((fbHeightDiff - lrHeightDiff)),
-                rearRight: Math.round((fbHeightDiff + lrHeightDiff))
-            };
-        }
+           // 앞쪽으로 기울었을 때 (beta > 0)는 뒤쪽을 올려야 함
+           // 뒤쪽으로 기울었을 때 (beta < 0)는 앞쪽을 올려야 함
+           return {
+               frontLeft: beta < 0 ? Math.round(-fbHeightDiff - (gamma > 0 ? 0 : lrHeightDiff)) : 0,
+               frontRight: beta < 0 ? Math.round(-fbHeightDiff - (gamma < 0 ? 0 : lrHeightDiff)) : 0,
+               rearLeft: beta > 0 ? Math.round(fbHeightDiff - (gamma > 0 ? 0 : lrHeightDiff)) : 0,
+               rearRight: beta > 0 ? Math.round(fbHeightDiff - (gamma < 0 ? 0 : lrHeightDiff)) : 0
+           };
+       }
 
-        function limitAngle(angle) {
-            return Math.max(-MAX_ANGLE, Math.min(MAX_ANGLE, angle));
-        }
+       function limitAngle(angle) {
+           return Math.max(-MAX_ANGLE, Math.min(MAX_ANGLE, angle));
+       }
 
-        function updateBubbles(beta, gamma) {
-            // 기울기를 ±10도로 제한
-            const limitedBeta = limitAngle(beta);
-            const limitedGamma = limitAngle(gamma);
+       function updateBubbles(beta, gamma) {
+           // 기울기를 ±10도로 제한
+           const limitedBeta = limitAngle(beta);
+           const limitedGamma = limitAngle(gamma);
 
-            // 메인 원형 수준기 (±10도에서 최대 이동)
-            const maxMove = 85;
-            const x = (limitedGamma / MAX_ANGLE) * maxMove;
-            const y = (limitedBeta / MAX_ANGLE) * maxMove;
-            mainBubble.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
+           // 메인 원형 수준기 (±10도에서 최대 이동)
+           const maxMove = 85;
+           const x = (limitedGamma / MAX_ANGLE) * maxMove;
+           const y = (limitedBeta / MAX_ANGLE) * maxMove;
+           mainBubble.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
 
-            // 세로 수준기 (앞뒤)
-            const verticalMove = (limitedBeta / MAX_ANGLE) * 125;
-            verticalBubble.style.transform = `translate(-50%, calc(-50% + ${verticalMove}px))`;
+           // 세로 수준기 (앞뒤)
+           const verticalMove = (limitedBeta / MAX_ANGLE) * 125;
+           verticalBubble.style.transform = `translate(-50%, calc(-50% + ${verticalMove}px))`;
 
-            // 가로 수준기 (좌우)
-            const horizontalMove = (limitedGamma / MAX_ANGLE) * 125;
-            horizontalBubble.style.transform = `translate(calc(-50% + ${horizontalMove}px), -50%)`;
-        }
+           // 가로 수준기 (좌우)
+           const horizontalMove = (limitedGamma / MAX_ANGLE) * 125;
+           horizontalBubble.style.transform = `translate(calc(-50% + ${horizontalMove}px), -50%)`;
+       }
 
-        function updateOutriggerValues(heights) {
-            Object.entries(heights).forEach(([position, height]) => {
-                const element = document.getElementById(position);
-                const absHeight = Math.abs(height);
-                let className = 'outrigger-value ';
-                
-                if (absHeight < 10) {
-                    className += 'level-green';
-                } else if (absHeight < 30) {
-                    className += 'level-yellow';
-                } else {
-                    className += 'level-red';
-                }
-                
-                element.textContent = `${absHeight}mm`;
-                element.className = className;
-            });
-        }
+       function updateOutriggerValues(heights) {
+           Object.entries(heights).forEach(([position, height]) => {
+               const element = document.getElementById(position);
+               const absHeight = Math.abs(height);
+               let className = 'outrigger-value ';
+               
+               if (absHeight < 1) {
+                   className += 'level-green';
+               } else if (absHeight < 3) {
+                   className += 'level-yellow';
+               } else {
+                   className += 'level-red';
+               }
+               
+               element.textContent = `${absHeight}cm`;
+               element.className = className;
+           });
+       }
 
-        function handleOrientation(event) {
-            const beta = event.beta;  // 앞뒤 기울기
-            const gamma = event.gamma; // 좌우 기울기
+       function handleOrientation(event) {
+           const beta = event.beta;  // 앞뒤 기울기
+           const gamma = event.gamma; // 좌우 기울기
 
-            updateBubbles(beta, gamma);
-            updateOutriggerValues(calculateHeights(beta, gamma));
-        }
+           updateBubbles(beta, gamma);
+           updateOutriggerValues(calculateHeights(beta, gamma));
+       }
 
-        // 센서 권한 요청 및 이벤트 리스너 설정
-        if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-            DeviceOrientationEvent.requestPermission()
-                .then(response => {
-                    if (response === 'granted') {
-                        window.addEventListener('deviceorientation', handleOrientation);
-                    }
-                })
-                .catch(console.error);
-        } else {
-            window.addEventListener('deviceorientation', handleOrientation);
-        }
-    </script>
+       // 센서 권한 요청 및 이벤트 리스너 설정
+       if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+           DeviceOrientationEvent.requestPermission()
+               .then(response => {
+                   if (response === 'granted') {
+                       window.addEventListener('deviceorientation', handleOrientation);
+                   }
+               })
+               .catch(console.error);
+       } else {
+           window.addEventListener('deviceorientation', handleOrientation);
+       }
+   </script>
 </body>
 </html>
