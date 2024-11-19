@@ -174,12 +174,14 @@
         // 카라반 치수 (mm)
         const CARAVAN_LENGTH = 7484;
         const CARAVAN_WIDTH = 2299;
+        const MAX_ANGLE = 10; // 최대 감지 각도를 ±10도로 제한
 
         const mainBubble = document.getElementById('mainBubble');
         const verticalBubble = document.getElementById('verticalBubble');
         const horizontalBubble = document.getElementById('horizontalBubble');
 
         function calculateHeights(beta, gamma) {
+            // 실제 높이 계산을 위해서는 제한되지 않은 각도 사용
             const fbRadians = beta * (Math.PI / 180);
             const lrRadians = gamma * (Math.PI / 180);
             
@@ -194,23 +196,27 @@
             };
         }
 
-        function updateBubbles(beta, gamma) {
-            // 제한된 각도 범위
-            const limitedBeta = Math.max(-90, Math.min(90, beta));
-            const limitedGamma = Math.max(-90, Math.min(90, gamma));
+        function limitAngle(angle) {
+            return Math.max(-MAX_ANGLE, Math.min(MAX_ANGLE, angle));
+        }
 
-            // 메인 원형 수준기
-            const maxMove = 85; // 버블 최대 이동 범위
-            const x = (limitedGamma / 90) * maxMove;
-            const y = (limitedBeta / 90) * maxMove;
+        function updateBubbles(beta, gamma) {
+            // 기울기를 ±10도로 제한
+            const limitedBeta = limitAngle(beta);
+            const limitedGamma = limitAngle(gamma);
+
+            // 메인 원형 수준기 (±10도에서 최대 이동)
+            const maxMove = 85;
+            const x = (limitedGamma / MAX_ANGLE) * maxMove;
+            const y = (limitedBeta / MAX_ANGLE) * maxMove;
             mainBubble.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
 
             // 세로 수준기 (앞뒤)
-            const verticalMove = (limitedBeta / 90) * 125;
+            const verticalMove = (limitedBeta / MAX_ANGLE) * 125;
             verticalBubble.style.transform = `translate(-50%, calc(-50% + ${verticalMove}px))`;
 
             // 가로 수준기 (좌우)
-            const horizontalMove = (limitedGamma / 90) * 125;
+            const horizontalMove = (limitedGamma / MAX_ANGLE) * 125;
             horizontalBubble.style.transform = `translate(calc(-50% + ${horizontalMove}px), -50%)`;
         }
 
@@ -228,8 +234,8 @@
                     className += 'level-red';
                 }
                 
-                element.className = className;
                 element.textContent = `${absHeight}mm`;
+                element.className = className;
             });
         }
 
