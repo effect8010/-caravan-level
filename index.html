@@ -15,166 +15,213 @@
             margin: 0;
             padding: 20px;
             font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+            background-color: #000;
+            color: #fff;
         }
         .container {
-            max-width: 600px;
+            max-width: 800px;
             margin: 0 auto;
-            background: white;
             padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-        .caravan {
+        .level-container {
+            background-color: #222;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .bubble-level {
             width: 300px;
-            height: 200px;
+            height: 300px;
             margin: 20px auto;
-            border: 2px solid #333;
+            border: 3px solid #444;
+            border-radius: 50%;
             position: relative;
+            background-color: #111;
+        }
+        .bubble {
+            width: 30px;
+            height: 30px;
+            background: #90EE90;
+            border-radius: 50%;
+            position: absolute;
+            box-shadow: 0 0 10px #90EE90;
+            transition: all 0.1s ease;
+        }
+        .crosshair {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 280px;
+            height: 280px;
+            transform: translate(-50%, -50%);
+            border: 2px solid #444;
+            border-radius: 50%;
+        }
+        .crosshair::before, .crosshair::after {
+            content: '';
+            position: absolute;
+            background: #444;
+        }
+        .crosshair::before {
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            transform: translateY(-50%);
+        }
+        .crosshair::after {
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            transform: translateX(-50%);
+        }
+        .bar-level {
+            width: 300px;
+            height: 60px;
+            margin: 20px auto;
+            background-color: #111;
+            border: 3px solid #444;
+            position: relative;
+            border-radius: 5px;
+        }
+        .bar-bubble {
+            width: 20px;
+            height: 40px;
+            background: #90EE90;
+            position: absolute;
+            top: 10px;
+            box-shadow: 0 0 10px #90EE90;
+            transition: all 0.1s ease;
+        }
+        .angle-display {
+            text-align: center;
+            font-size: 24px;
+            margin: 20px 0;
+            font-family: monospace;
+        }
+        .caravan-display {
+            margin-top: 40px;
+            padding: 20px;
+            background-color: #222;
             border-radius: 10px;
         }
-        .corner {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            position: absolute;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            font-weight: bold;
-            border: 2px solid #333;
-            background-color: white;
-            transition: all 0.3s ease;
-        }
-        .fl { top: -20px; left: -20px; }
-        .fr { top: -20px; right: -20px; }
-        .bl { bottom: -20px; left: -20px; }
-        .br { bottom: -20px; right: -20px; }
-        .green { background-color: #4CAF50; color: white; }
-        .yellow { background-color: #FFC107; color: black; }
-        .red { background-color: #F44336; color: white; }
-        .readings {
-            text-align: center;
-            margin-top: 20px;
+        .corner-value {
             font-size: 18px;
+            padding: 10px;
+            background-color: #333;
+            border-radius: 5px;
+            margin: 5px;
+            display: inline-block;
         }
-        .direction {
-            position: absolute;
-            font-weight: bold;
-            color: #666;
-        }
-        .front { top: -40px; left: 50%; transform: translateX(-50%); }
-        .back { bottom: -40px; left: 50%; transform: translateX(-50%); }
-        .legend {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 20px;
-            font-size: 14px;
-        }
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .legend-color {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-        }
+        .green-text { color: #90EE90; }
+        .yellow-text { color: #FFD700; }
+        .red-text { color: #FF6B6B; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1 style="text-align: center;">Caravan Level Meter</h1>
+        <div class="level-container">
+            <div class="bubble-level">
+                <div class="crosshair"></div>
+                <div class="bubble" id="mainBubble"></div>
+            </div>
+            <div class="bar-level">
+                <div class="bar-bubble" id="xBubble"></div>
+            </div>
+            <div class="bar-level">
+                <div class="bar-bubble" id="yBubble"></div>
+            </div>
+            <div class="angle-display">
+                X: <span id="xAngle">0.0</span>° | Y: <span id="yAngle">0.0</span>°
+            </div>
+        </div>
         
-        <div class="caravan">
-            <div class="direction front">FRONT</div>
-            <div class="direction back">BACK</div>
-            <div class="corner fl" id="fl">0</div>
-            <div class="corner fr" id="fr">0</div>
-            <div class="corner bl" id="bl">0</div>
-            <div class="corner br" id="br">0</div>
-        </div>
-
-        <div class="readings">
-            <p>전후 기울기: <span id="fbTilt">0.0</span>°</p>
-            <p>좌우 기울기: <span id="lrTilt">0.0</span>°</p>
-        </div>
-
-        <div class="legend">
-            <div class="legend-item">
-                <div class="legend-color" style="background-color: #4CAF50;"></div>
-                <span>0-10mm</span>
+        <div class="caravan-display">
+            <h3>아웃트리거 조정값 (mm)</h3>
+            <div style="text-align: center;">
+                <div class="corner-value" id="fl">전방 좌측: 0</div>
+                <div class="corner-value" id="fr">전방 우측: 0</div>
             </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background-color: #FFC107;"></div>
-                <span>10-30mm</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background-color: #F44336;"></div>
-                <span>30mm+</span>
+            <div style="text-align: center; margin-top: 20px;">
+                <div class="corner-value" id="bl">후방 좌측: 0</div>
+                <div class="corner-value" id="br">후방 우측: 0</div>
             </div>
         </div>
     </div>
 
     <script>
-        // 카라반 치수 (mm)
-        const CARAVAN_LENGTH = 5600;
-        const CARAVAN_WIDTH = 3200;
+        // 카라반 치수
+        const CARAVAN_LENGTH = 7484; // mm (전체 길이)
+        const CARAVAN_WIDTH = 2299;  // mm (전체 폭)
+
+        const mainBubble = document.getElementById('mainBubble');
+        const xBubble = document.getElementById('xBubble');
+        const yBubble = document.getElementById('yBubble');
+        const xAngleDisplay = document.getElementById('xAngle');
+        const yAngleDisplay = document.getElementById('yAngle');
 
         function calculateCornerHeights(fbAngle, lrAngle) {
-            // 라디안 변환
             const fbRadians = fbAngle * (Math.PI / 180);
             const lrRadians = lrAngle * (Math.PI / 180);
             
-            // 전후/좌우 각각의 높이 차이 계산
-            const fbHeightDiff = Math.sin(fbRadians) * CARAVAN_LENGTH;
-            const lrHeightDiff = Math.sin(lrRadians) * CARAVAN_WIDTH;
+            const fbHeightDiff = Math.sin(fbRadians) * (CARAVAN_LENGTH / 2);
+            const lrHeightDiff = Math.sin(lrRadians) * (CARAVAN_WIDTH / 2);
 
-            // 각 코너의 높이 계산
             return {
-                fl: Math.round((-fbHeightDiff/2 - lrHeightDiff/2)), // 전방 좌측
-                fr: Math.round((-fbHeightDiff/2 + lrHeightDiff/2)), // 전방 우측
-                bl: Math.round((fbHeightDiff/2 - lrHeightDiff/2)),  // 후방 좌측
-                br: Math.round((fbHeightDiff/2 + lrHeightDiff/2))   // 후방 우측
+                fl: Math.round((-fbHeightDiff - lrHeightDiff)),
+                fr: Math.round((-fbHeightDiff + lrHeightDiff)),
+                bl: Math.round((fbHeightDiff - lrHeightDiff)),
+                br: Math.round((fbHeightDiff + lrHeightDiff))
             };
         }
 
-        function handleOrientation(event) {
-            const x = event.beta;  // 전후 기울기 (-180° ~ 180°)
-            const y = event.gamma; // 좌우 기울기 (-90° ~ 90°)
+        function updateBubblePositions(x, y) {
+            // 원형 수평계 업데이트
+            const maxRadius = 135; // 버블의 최대 이동 반경
+            const xPos = (y * maxRadius / 90);
+            const yPos = (x * maxRadius / 90);
+            mainBubble.style.transform = `translate(${xPos}px, ${yPos}px)`;
 
-            // 기울기 값을 ±90° 범위로 제한
-            const fbTilt = Math.max(-90, Math.min(90, x));
-            const lrTilt = Math.max(-90, Math.min(90, y));
+            // 바 수평계 업데이트
+            const barMaxMove = 140;
+            xBubble.style.left = `${150 + (y * barMaxMove / 90)}px`;
+            yBubble.style.left = `${150 + (x * barMaxMove / 90)}px`;
+        }
 
-            // 기울기 표시 업데이트
-            document.getElementById('fbTilt').textContent = fbTilt.toFixed(1);
-            document.getElementById('lrTilt').textContent = lrTilt.toFixed(1);
-
-            // 높이 계산
-            const heights = calculateCornerHeights(fbTilt, lrTilt);
-
-            // 각 코너 표시 업데이트
+        function updateCornerValues(heights) {
             Object.entries(heights).forEach(([corner, height]) => {
                 const element = document.getElementById(corner);
-                const absHeight = Math.abs(height);
-                element.textContent = absHeight;
-                
-                // 색상 업데이트
-                if (absHeight < 10) {
-                    element.className = `corner ${corner} green`;
-                } else if (absHeight < 30) {
-                    element.className = `corner ${corner} yellow`;
-                } else {
-                    element.className = `corner ${corner} red`;
+                if (element) {
+                    let className = 'corner-value ';
+                    const absHeight = Math.abs(height);
+                    if (absHeight < 10) {
+                        className += 'green-text';
+                    } else if (absHeight < 30) {
+                        className += 'yellow-text';
+                    } else {
+                        className += 'red-text';
+                    }
+                    element.className = className;
+                    element.textContent = `${corner.toUpperCase()}: ${absHeight}mm`;
                 }
             });
         }
 
-        // 센서 권한 요청 및 이벤트 리스너 설정
+        function handleOrientation(event) {
+            const x = event.beta;  // 전후 기울기
+            const y = event.gamma; // 좌우 기울기
+
+            const fbTilt = Math.max(-90, Math.min(90, x));
+            const lrTilt = Math.max(-90, Math.min(90, y));
+
+            xAngleDisplay.textContent = fbTilt.toFixed(1);
+            yAngleDisplay.textContent = lrTilt.toFixed(1);
+
+            updateBubblePositions(fbTilt, lrTilt);
+            updateCornerValues(calculateCornerHeights(fbTilt, lrTilt));
+        }
+
         if (typeof DeviceOrientationEvent.requestPermission === 'function') {
             DeviceOrientationEvent.requestPermission()
                 .then(response => {
@@ -186,20 +233,6 @@
         } else {
             window.addEventListener('deviceorientation', handleOrientation);
         }
-
-        // Service Worker 등록
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(registration => {
-                        console.log('ServiceWorker registration successful');
-                    })
-                    .catch(err => {
-                        console.log('ServiceWorker registration failed: ', err);
-                    });
-            });
-        }
     </script>
-</div>
 </body>
 </html>
