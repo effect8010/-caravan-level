@@ -235,12 +235,12 @@
        function updateOutriggerValues(heights) {
            Object.entries(heights).forEach(([position, height]) => {
                const element = document.getElementById(position);
-               const absHeight = Math.abs(height).toFixed(1); // 소수점 1자리까지 표시
+               const absHeight = Math.abs(height).toFixed(2); // 소수점 1자리까지 표시
                let className = 'outrigger-value ';
                
-               if (absHeight < 3) {
+               if (absHeight < 5) {
                    className += 'level-green';
-               } else if (absHeight < 5) {
+               } else if (absHeight < 10) {
                    className += 'level-yellow';
                } else {
                    className += 'level-red';
