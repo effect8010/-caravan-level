@@ -13,31 +13,35 @@
    <style>
        body {
            margin: 0;
-           padding: 20px;
+           padding: 10px;
            font-family: Arial, sans-serif;
            background-color: #000;
            color: #fff;
        }
        .container {
-           max-width: 800px;
+           max-width: 100%;
            margin: 0 auto;
-           padding: 20px;
+           padding: 10px;
        }
        .level-meters {
            display: flex;
            flex-direction: column;
-           gap: 20px;
+           gap: 10px;
+           align-items: center;
+       }
+       .meters-group {
+           display: flex;
+           gap: 10px;
            align-items: center;
        }
        /* 원형 수준기 */
        .circular-level {
-           width: 200px;
-           height: 200px;
+           width: 150px;
+           height: 150px;
            border-radius: 50%;
            border: 3px solid #333;
            background-color: #1a1a1a;
            position: relative;
-           margin: 20px auto;
        }
        .circular-bubble {
            width: 30px;
@@ -76,21 +80,22 @@
        }
        /* 가로/세로 수준기 */
        .bar-level {
-           width: 300px;
-           height: 50px;
            background-color: #1a1a1a;
            border: 3px solid #333;
            position: relative;
-           margin: 10px auto;
        }
        .bar-level.vertical {
-           width: 50px;
-           height: 300px;
-           margin: 20px 10px;
+           width: 40px;
+           height: 150px;
+       }
+       .bar-level.horizontal {
+           width: 150px;
+           height: 40px;
+           margin-top: 10px;
        }
        .bar-bubble {
-           width: 40px;
-           height: 40px;
+           width: 30px;
+           height: 30px;
            background: #90EE90;
            border-radius: 50%;
            position: absolute;
@@ -123,30 +128,27 @@
        .level-green { color: #90EE90; }
        .level-yellow { color: #FFD700; }
        .level-red { color: #FF4444; }
-       .flex-container {
-           display: flex;
-           justify-content: center;
-           align-items: center;
-           gap: 20px;
-       }
    </style>
 </head>
 <body>
    <div class="container">
        <div class="level-meters">
-           <div class="circular-level">
-               <div class="crosshair"></div>
-               <div class="circular-bubble" id="mainBubble"></div>
-           </div>
-           
-           <div class="flex-container">
+           <div class="meters-group">
+               <!-- 세로 수준기 -->
                <div class="bar-level vertical">
                    <div class="bar-bubble" id="verticalBubble"></div>
                </div>
                
-               <div class="bar-level">
-                   <div class="bar-bubble" id="horizontalBubble"></div>
+               <!-- 원형 수준기 -->
+               <div class="circular-level">
+                   <div class="crosshair"></div>
+                   <div class="circular-bubble" id="mainBubble"></div>
                </div>
+           </div>
+           
+           <!-- 가로 수준기 -->
+           <div class="bar-level horizontal">
+               <div class="bar-bubble" id="horizontalBubble"></div>
            </div>
        </div>
 
@@ -179,7 +181,7 @@
        const mainBubble = document.getElementById('mainBubble');
        const verticalBubble = document.getElementById('verticalBubble');
        const horizontalBubble = document.getElementById('horizontalBubble');
-/*
+
        function calculateHeights(beta, gamma) {
            const fbRadians = beta * (Math.PI / 180);
            const lrRadians = gamma * (Math.PI / 180);
@@ -188,53 +190,19 @@
            const fbHeightDiff = Math.sin(fbRadians) * (CARAVAN_LENGTH / 2) / 10;
            const lrHeightDiff = Math.sin(lrRadians) * (CARAVAN_WIDTH / 2) / 10;
 
-           // 전/후방 높이 계산 분리
-           let frontHeights = {left: 0, right: 0};
-           let rearHeights = {left: 0, right: 0};
+           // 좌우 기울기만의 높이 차이
+           const leftHeight = gamma > 0 ? Math.abs(lrHeightDiff) : 0;
+           const rightHeight = gamma < 0 ? Math.abs(lrHeightDiff) : 0;
 
-           // 좌우 기울기 적용
-           if (gamma > 0) { // 오른쪽으로 기울어짐
-               frontHeights.left = Math.abs(lrHeightDiff);
-               rearHeights.left = Math.abs(lrHeightDiff);
-               frontHeights.right = 0;
-               rearHeights.right = 0;
-           } else if (gamma < 0) { // 왼쪽으로 기울어짐
-               frontHeights.right = Math.abs(lrHeightDiff);
-               rearHeights.right = Math.abs(lrHeightDiff);
-               frontHeights.left = 0;
-               rearHeights.left = 0;
-           }
-
-           // 전후방 기울기에 따른 최종 높이 계산
+           // 앞뒤 기울기에 따른 높이 + 좌우 기울기 높이를 모든 위치에 적용
            return {
-               frontLeft: beta < 0 ? Math.round(Math.abs(fbHeightDiff) + frontHeights.left) : 0,
-               frontRight: beta < 0 ? Math.round(Math.abs(fbHeightDiff) + frontHeights.right) : 0,
-               rearLeft: beta > 0 ? Math.round(Math.abs(fbHeightDiff) + rearHeights.left) : 0,
-               rearRight: beta > 0 ? Math.round(Math.abs(fbHeightDiff) + rearHeights.right) : 0
+               frontLeft: beta < 0 ? Math.round(Math.abs(fbHeightDiff)) + leftHeight : leftHeight,
+               frontRight: beta < 0 ? Math.round(Math.abs(fbHeightDiff)) + rightHeight : rightHeight,
+               rearLeft: beta > 0 ? Math.round(Math.abs(fbHeightDiff)) + leftHeight : leftHeight,
+               rearRight: beta > 0 ? Math.round(Math.abs(fbHeightDiff)) + rightHeight : rightHeight
            };
        }
-*/
 
-function calculateHeights(beta, gamma) {
-    const fbRadians = beta * (Math.PI / 180);
-    const lrRadians = gamma * (Math.PI / 180);
-    
-    // 앞뒤, 좌우 높이 차이 계산 (cm 단위)
-    const fbHeightDiff = Math.sin(fbRadians) * (CARAVAN_LENGTH / 2) / 10;
-    const lrHeightDiff = Math.sin(lrRadians) * (CARAVAN_WIDTH / 2) / 10;
-
-    // 좌우 기울기만의 높이 차이
-    const leftHeight = gamma > 0 ? Math.abs(lrHeightDiff) : 0;
-    const rightHeight = gamma < 0 ? Math.abs(lrHeightDiff) : 0;
-
-    // 앞뒤 기울기에 따른 높이 + 좌우 기울기 높이를 모든 위치에 적용
-    return {
-        frontLeft: beta < 0 ? Math.round(Math.abs(fbHeightDiff)) + leftHeight : leftHeight,
-        frontRight: beta < 0 ? Math.round(Math.abs(fbHeightDiff)) + rightHeight : rightHeight,
-        rearLeft: beta > 0 ? Math.round(Math.abs(fbHeightDiff)) + leftHeight : leftHeight,
-        rearRight: beta > 0 ? Math.round(Math.abs(fbHeightDiff)) + rightHeight : rightHeight
-    };
-}
        function limitAngle(angle) {
            return Math.max(-MAX_ANGLE, Math.min(MAX_ANGLE, angle));
        }
