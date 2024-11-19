@@ -176,9 +176,9 @@
 
    <script>
        // 카라반 치수 (mm)
-       const CARAVAN_LENGTH = 7484;
-       const CARAVAN_WIDTH = 2299;
-       const MAX_ANGLE = 10; // 최대 감지 각도를 ±10도로 제한
+       const CARAVAN_LENGTH = 6150;
+       const CARAVAN_WIDTH = 2170;
+       const MAX_ANGLE = 5; // 최대 감지 각도를 ±10도로 제한
 
        const mainBubble = document.getElementById('mainBubble');
        const verticalBubble = document.getElementById('verticalBubble');
@@ -238,9 +238,9 @@
                const absHeight = Math.abs(height).toFixed(1); // 소수점 1자리까지 표시
                let className = 'outrigger-value ';
                
-               if (absHeight < 1) {
+               if (absHeight < 3) {
                    className += 'level-green';
-               } else if (absHeight < 3) {
+               } else if (absHeight < 5) {
                    className += 'level-yellow';
                } else {
                    className += 'level-red';
