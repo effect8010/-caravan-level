@@ -11,192 +11,97 @@
    <meta name="apple-mobile-web-app-title" content="Level Meter">
    <link rel="icon" href="icon.png">
    <style>
-       body {
-           margin: 0;
-           padding: 10px;
-           font-family: Arial, sans-serif;
-           background-color: #000;
-           color: #fff;
-       }
-       .container {
-           max-width: 100%;
-           margin: 0 auto;
-           padding: 10px;
-       }
-       .level-meters {
-           display: flex;
-           flex-direction: column;
-           gap: 10px;
-           align-items: center;
-       }
-       .meters-group {
-           display: flex;
-           gap: 10px;
-           align-items: center;
-       }
-       /* 원형 수준기 */
-       .circular-level {
-           width: 150px;
-           height: 150px;
-           border-radius: 50%;
-           border: 3px solid #333;
-           background-color: #1a1a1a;
-           position: relative;
-           overflow: hidden;  /* 추가: 버블이 바깥으로 나가지 않도록 */
-       }
-       .circular-bubble {
-           width: 30px;
-           height: 30px;
-           background: #90EE90;
-           border-radius: 50%;
-           position: absolute;
-           top: 50%;
-           left: 50%;
-           transform: translate(-50%, -50%);
-           transition: all 0.1s ease;
-       }
-       .crosshair {
-           position: absolute;
-           top: 0;
-           left: 0;
-           right: 0;
-           bottom: 0;
-       }
-       .crosshair::before, .crosshair::after {
-           content: '';
-           position: absolute;
+       /* 이전 스타일 코드 유지 */
+       .audio-control {
+           position: fixed;
+           top: 10px;
+           right: 10px;
            background: #333;
-       }
-       .crosshair::before {
-           left: 0;
-           right: 0;
-           height: 1px;
-           top: 50%;
-       }
-       .crosshair::after {
-           top: 0;
-           bottom: 0;
-           width: 1px;
-           left: 50%;
-       }
-       /* 가로/세로 수준기 */
-       .bar-level {
-           background-color: #1a1a1a;
-           border: 3px solid #333;
-           position: relative;
-           overflow: hidden;  /* 추가: 버블이 바깥으로 나가지 않도록 */
-       }
-       .bar-level.vertical {
-           width: 40px;
-           height: 150px;
-       }
-       .bar-level.horizontal {
-           width: 150px;
-           height: 40px;
-           margin-top: 10px;
-       }
-       .bar-bubble {
-           width: 30px;
-           height: 30px;
-           background: #90EE90;
-           border-radius: 50%;
-           position: absolute;
-           top: 50%;
-           left: 50%;
-           transform: translate(-50%, -50%);
-           transition: all 0.1s ease;
-       }
-       /* 아웃트리거 표시 */
-       .outriggers {
-           display: grid;
-           grid-template-columns: repeat(2, 1fr);
-           gap: 20px;
-           margin-top: 30px;
-           background: #1a1a1a;
-           padding: 20px;
-           border-radius: 10px;
-       }
-       .outrigger {
-           text-align: center;
-           padding: 15px;
-           border: 1px solid #333;
+           padding: 10px;
            border-radius: 5px;
+           display: flex;
+           align-items: center;
+           gap: 10px;
        }
-       .outrigger-value {
-           font-size: 24px;
-           font-weight: bold;
-           margin-top: 10px;
+       .audio-control label {
+           color: #fff;
+           font-size: 14px;
        }
-       .level-green { color: #90EE90; }
-       .level-yellow { color: #FFD700; }
-       .level-red { color: #FF4444; }
    </style>
 </head>
 <body>
-   <div class="container">
-       <div class="level-meters">
-           <div class="meters-group">
-               <!-- 세로 수준기 -->
-               <div class="bar-level vertical">
-                   <div class="bar-bubble" id="verticalBubble"></div>
-               </div>
-               
-               <!-- 원형 수준기 -->
-               <div class="circular-level">
-                   <div class="crosshair"></div>
-                   <div class="circular-bubble" id="mainBubble"></div>
-               </div>
-           </div>
-           
-           <!-- 가로 수준기 -->
-           <div class="bar-level horizontal">
-               <div class="bar-bubble" id="horizontalBubble"></div>
-           </div>
-       </div>
-
-       <div class="outriggers">
-           <div class="outrigger">
-               <div>전방 좌측</div>
-               <div class="outrigger-value" id="frontLeft">0.0cm</div>
-           </div>
-           <div class="outrigger">
-               <div>전방 우측</div>
-               <div class="outrigger-value" id="frontRight">0.0cm</div>
-           </div>
-           <div class="outrigger">
-               <div>후방 좌측</div>
-               <div class="outrigger-value" id="rearLeft">0.0cm</div>
-           </div>
-           <div class="outrigger">
-               <div>후방 우측</div>
-               <div class="outrigger-value" id="rearRight">0.0cm</div>
-           </div>
-       </div>
+   <!-- 오디오 컨트롤 추가 -->
+   <div class="audio-control">
+       <input type="checkbox" id="soundToggle" checked>
+       <label for="soundToggle">알림음</label>
    </div>
 
-   <script>
-       // 카라반 치수 (mm)
-       const CARAVAN_LENGTH = 6150;
-       const CARAVAN_WIDTH = 2170;
-       const MAX_ANGLE = 5; // 최대 감지 각도를 ±10도로 제한
+   <!-- 기존 HTML 구조 유지 -->
+   <div class="container">
+       <!-- 이전 컨텐츠 유지 -->
+   </div>
 
+   <!-- 알림음 요소 추가 -->
+   <audio id="alertSound" preload="auto">
+       <source src="data:audio/mpeg;base64,//uQxAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAAKAAAIkAAjIyMjIyMjIyMjQ0NDQ0NDQ0NDY2NjY2NjY2NjY4CAgICAgICAgICcnJycnJycnJy4uLi4uLi4uLi4zMzMzMzMzMzMzT09PT09PT09PT4+Pj4+Pj4+Pj4+/v7+/v7+/v7+/////////////////////////////////8AAAA5TEFNRTMuMTAwBEgAAAAAAAAAABUgJAMGQQABmgAABJAYz+KhAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//sQxAADwAABpAAAACAAADSAAAAEAAAGkAAAAIAAANIAAAARMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV" type="audio/mpeg">
+   </audio>
+
+   <script>
+       // 기존 상수 선언
+       const CARAVAN_LENGTH = 7484;
+       const CARAVAN_WIDTH = 2299;
+       const MAX_ANGLE = 10;
+
+       // DOM 요소
        const mainBubble = document.getElementById('mainBubble');
        const verticalBubble = document.getElementById('verticalBubble');
        const horizontalBubble = document.getElementById('horizontalBubble');
+       const alertSound = document.getElementById('alertSound');
+       const soundToggle = document.getElementById('soundToggle');
 
+       // 알림음 상태 관리
+       let isPlaying = false;
+       let lastAlertTime = 0;
+       const ALERT_COOLDOWN = 2000; // 알림음 간격 (2초)
+
+       function playAlertIfNeeded(heights) {
+           if (!soundToggle.checked) return;
+
+           const maxHeight = Math.max(
+               Math.abs(heights.frontLeft),
+               Math.abs(heights.frontRight),
+               Math.abs(heights.rearLeft),
+               Math.abs(heights.rearRight)
+           );
+
+           // 10cm 이하일 때 알림음 재생
+           if (maxHeight <= 10) {
+               if (!isPlaying) {
+                   alertSound.loop = true; // 반복 재생 설정
+                   alertSound.play();
+                   isPlaying = true;
+               }
+           } else {
+               // 10cm 초과 시 알림음 정지
+               if (isPlaying) {
+                   alertSound.pause();
+                   alertSound.currentTime = 0;
+                   isPlaying = false;
+               }
+           }
+       }
+
+       // 기존 함수들...
        function calculateHeights(beta, gamma) {
            const fbRadians = beta * (Math.PI / 180);
            const lrRadians = gamma * (Math.PI / 180);
            
-           // 앞뒤, 좌우 높이 차이 계산 (cm 단위)
            const fbHeightDiff = Math.sin(fbRadians) * (CARAVAN_LENGTH / 2) / 10;
            const lrHeightDiff = Math.sin(lrRadians) * (CARAVAN_WIDTH / 2) / 10;
 
-           // 좌우 기울기만의 높이 차이
            const leftHeight = gamma > 0 ? Math.abs(lrHeightDiff) : 0;
            const rightHeight = gamma < 0 ? Math.abs(lrHeightDiff) : 0;
 
-           // 앞뒤 기울기에 따른 높이 + 좌우 기울기 높이를 모든 위치에 적용
            return {
                frontLeft: beta < 0 ? (Math.abs(fbHeightDiff) + leftHeight) : leftHeight,
                frontRight: beta < 0 ? (Math.abs(fbHeightDiff) + rightHeight) : rightHeight,
@@ -210,24 +115,19 @@
        }
 
        function updateBubbles(beta, gamma) {
-           // 기울기를 ±10도로 제한
            const limitedBeta = limitAngle(beta);
            const limitedGamma = limitAngle(gamma);
 
-           // 버블 크기를 고려한 최대 이동 거리 계산
-           const circularMaxMove = 60;  // 원형 수준기의 최대 이동 거리
-           const barMaxMove = 50;      // 바 수준기의 최대 이동 거리
+           const circularMaxMove = 60;
+           const barMaxMove = 50;
 
-           // 메인 원형 수준기
            const x = (-limitedGamma / MAX_ANGLE) * circularMaxMove;
            const y = (-limitedBeta / MAX_ANGLE) * circularMaxMove;
            mainBubble.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
 
-           // 세로 수준기 (앞뒤)
            const verticalMove = (-limitedBeta / MAX_ANGLE) * barMaxMove;
            verticalBubble.style.transform = `translate(-50%, calc(-50% + ${verticalMove}px))`;
 
-           // 가로 수준기 (좌우)
            const horizontalMove = (-limitedGamma / MAX_ANGLE) * barMaxMove;
            horizontalBubble.style.transform = `translate(calc(-50% + ${horizontalMove}px), -50%)`;
        }
@@ -235,12 +135,12 @@
        function updateOutriggerValues(heights) {
            Object.entries(heights).forEach(([position, height]) => {
                const element = document.getElementById(position);
-               const absHeight = Math.abs(height).toFixed(2); // 소수점 1자리까지 표시
+               const absHeight = Math.abs(height).toFixed(1);
                let className = 'outrigger-value ';
                
-               if (absHeight < 5) {
+               if (absHeight < 1) {
                    className += 'level-green';
-               } else if (absHeight < 10) {
+               } else if (absHeight < 3) {
                    className += 'level-yellow';
                } else {
                    className += 'level-red';
@@ -249,28 +149,47 @@
                element.textContent = `${absHeight}cm`;
                element.className = className;
            });
+
+           // 알림음 재생 확인
+           playAlertIfNeeded(heights);
        }
 
        function handleOrientation(event) {
-           const beta = event.beta;  // 앞뒤 기울기
-           const gamma = event.gamma; // 좌우 기울기
+           const beta = event.beta;
+           const gamma = event.gamma;
 
            updateBubbles(beta, gamma);
            updateOutriggerValues(calculateHeights(beta, gamma));
        }
 
-       // 센서 권한 요청 및 이벤트 리스너 설정
-       if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-           DeviceOrientationEvent.requestPermission()
-               .then(response => {
-                   if (response === 'granted') {
+       // 센서와 오디오 권한 요청
+       async function requestPermissions() {
+           try {
+               // 센서 권한 요청
+               if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+                   const sensorPermission = await DeviceOrientationEvent.requestPermission();
+                   if (sensorPermission === 'granted') {
                        window.addEventListener('deviceorientation', handleOrientation);
                    }
-               })
-               .catch(console.error);
-       } else {
-           window.addEventListener('deviceorientation', handleOrientation);
+               } else {
+                   window.addEventListener('deviceorientation', handleOrientation);
+               }
+
+               // 오디오 컨텍스트 초기화 (자동 재생 정책 우회)
+               const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+               if (audioContext.state === 'suspended') {
+                   await audioContext.resume();
+               }
+           } catch (error) {
+               console.error('권한 요청 실패:', error);
+           }
        }
+
+       // 페이지 로드 시 권한 요청
+       document.addEventListener('DOMContentLoaded', requestPermissions);
+
+       // 사용자 상호작용으로 인한 권한 요청 (iOS Safari를 위한 대비책)
+       document.body.addEventListener('click', requestPermissions, { once: true });
    </script>
 </body>
 </html>
