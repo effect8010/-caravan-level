@@ -4,94 +4,192 @@
    <meta charset="UTF-8">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <title>Caravan Level Meter</title>
-   <link rel="manifest" href="manifest.json">
-   <meta name="mobile-web-app-capable" content="yes">
-   <meta name="apple-mobile-web-app-capable" content="yes">
-   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-   <meta name="apple-mobile-web-app-title" content="Level Meter">
-   <link rel="icon" href="icon.png">
    <style>
-       /* 이전 스타일 코드 유지 */
-       .audio-control {
-           position: fixed;
-           top: 10px;
-           right: 10px;
-           background: #333;
+       body {
+           margin: 0;
            padding: 10px;
-           border-radius: 5px;
-           display: flex;
-           align-items: center;
-           gap: 10px;
-       }
-       .audio-control label {
+           font-family: Arial, sans-serif;
+           background-color: #000;
            color: #fff;
-           font-size: 14px;
        }
+       .container {
+           max-width: 100%;
+           margin: 0 auto;
+           padding: 10px;
+       }
+       .level-meters {
+           display: flex;
+           flex-direction: column;
+           gap: 10px;
+           align-items: center;
+       }
+       .meters-group {
+           display: flex;
+           gap: 10px;
+           align-items: center;
+       }
+       .circular-level {
+           width: 150px;
+           height: 150px;
+           border-radius: 50%;
+           border: 3px solid #333;
+           background-color: #1a1a1a;
+           position: relative;
+           overflow: hidden;
+       }
+       .circular-bubble {
+           width: 30px;
+           height: 30px;
+           background: #90EE90;
+           border-radius: 50%;
+           position: absolute;
+           top: 50%;
+           left: 50%;
+           transform: translate(-50%, -50%);
+           transition: all 0.1s ease;
+       }
+       .crosshair {
+           position: absolute;
+           top: 0;
+           left: 0;
+           right: 0;
+           bottom: 0;
+       }
+       .crosshair::before, .crosshair::after {
+           content: '';
+           position: absolute;
+           background: #333;
+       }
+       .crosshair::before {
+           left: 0;
+           right: 0;
+           height: 1px;
+           top: 50%;
+       }
+       .crosshair::after {
+           top: 0;
+           bottom: 0;
+           width: 1px;
+           left: 50%;
+       }
+       .bar-level {
+           background-color: #1a1a1a;
+           border: 3px solid #333;
+           position: relative;
+           overflow: hidden;
+       }
+       .bar-level.vertical {
+           width: 40px;
+           height: 150px;
+       }
+       .bar-level.horizontal {
+           width: 150px;
+           height: 40px;
+           margin-top: 10px;
+       }
+       .bar-bubble {
+           width: 30px;
+           height: 30px;
+           background: #90EE90;
+           border-radius: 50%;
+           position: absolute;
+           top: 50%;
+           left: 50%;
+           transform: translate(-50%, -50%);
+           transition: all 0.1s ease;
+       }
+       .outriggers {
+           display: grid;
+           grid-template-columns: repeat(2, 1fr);
+           gap: 20px;
+           margin-top: 30px;
+           background: #1a1a1a;
+           padding: 20px;
+           border-radius: 10px;
+       }
+       .outrigger {
+           text-align: center;
+           padding: 15px;
+           border: 1px solid #333;
+           border-radius: 5px;
+       }
+       .outrigger-value {
+           font-size: 24px;
+           font-weight: bold;
+           margin-top: 10px;
+       }
+       .level-green { color: #90EE90; }
+       .level-yellow { color: #FFD700; }
+       .level-red { color: #FF4444; }
    </style>
 </head>
 <body>
-   <!-- 오디오 컨트롤 추가 -->
-   <div class="audio-control">
-       <input type="checkbox" id="soundToggle" checked>
-       <label for="soundToggle">알림음</label>
-   </div>
-
-   <!-- 기존 HTML 구조 유지 -->
    <div class="container">
-       <!-- 이전 컨텐츠 유지 -->
-   </div>
+       <div class="level-meters">
+           <div class="meters-group">
+               <div class="bar-level vertical">
+                   <div class="bar-bubble" id="verticalBubble"></div>
+               </div>
+               
+               <div class="circular-level">
+                   <div class="crosshair"></div>
+                   <div class="circular-bubble" id="mainBubble"></div>
+               </div>
+           </div>
+           
+           <div class="bar-level horizontal">
+               <div class="bar-bubble" id="horizontalBubble"></div>
+           </div>
+       </div>
 
-   <!-- 알림음 요소 추가 -->
-   <audio id="alertSound" preload="auto">
-       <source src="data:audio/mpeg;base64,//uQxAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAAKAAAIkAAjIyMjIyMjIyMjQ0NDQ0NDQ0NDY2NjY2NjY2NjY4CAgICAgICAgICcnJycnJycnJy4uLi4uLi4uLi4zMzMzMzMzMzMzT09PT09PT09PT4+Pj4+Pj4+Pj4+/v7+/v7+/v7+/////////////////////////////////8AAAA5TEFNRTMuMTAwBEgAAAAAAAAAABUgJAMGQQABmgAABJAYz+KhAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//sQxAADwAABpAAAACAAADSAAAAEAAAGkAAAAIAAANIAAAARMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV" type="audio/mpeg">
-   </audio>
+       <div class="outriggers">
+           <div class="outrigger">
+               <div>전방 좌측</div>
+               <div class="outrigger-value" id="frontLeft">0.0cm</div>
+           </div>
+           <div class="outrigger">
+               <div>전방 우측</div>
+               <div class="outrigger-value" id="frontRight">0.0cm</div>
+           </div>
+           <div class="outrigger">
+               <div>후방 좌측</div>
+               <div class="outrigger-value" id="rearLeft">0.0cm</div>
+           </div>
+           <div class="outrigger">
+               <div>후방 우측</div>
+               <div class="outrigger-value" id="rearRight">0.0cm</div>
+           </div>
+       </div>
+   </div>
 
    <script>
-       // 기존 상수 선언
        const CARAVAN_LENGTH = 7484;
        const CARAVAN_WIDTH = 2299;
        const MAX_ANGLE = 10;
 
-       // DOM 요소
        const mainBubble = document.getElementById('mainBubble');
        const verticalBubble = document.getElementById('verticalBubble');
        const horizontalBubble = document.getElementById('horizontalBubble');
-       const alertSound = document.getElementById('alertSound');
-       const soundToggle = document.getElementById('soundToggle');
 
-       // 알림음 상태 관리
-       let isPlaying = false;
-       let lastAlertTime = 0;
-       const ALERT_COOLDOWN = 2000; // 알림음 간격 (2초)
-
-       function playAlertIfNeeded(heights) {
-           if (!soundToggle.checked) return;
-
-           const maxHeight = Math.max(
-               Math.abs(heights.frontLeft),
-               Math.abs(heights.frontRight),
-               Math.abs(heights.rearLeft),
-               Math.abs(heights.rearRight)
-           );
-
-           // 10cm 이하일 때 알림음 재생
-           if (maxHeight <= 10) {
-               if (!isPlaying) {
-                   alertSound.loop = true; // 반복 재생 설정
-                   alertSound.play();
-                   isPlaying = true;
-               }
-           } else {
-               // 10cm 초과 시 알림음 정지
-               if (isPlaying) {
-                   alertSound.pause();
-                   alertSound.currentTime = 0;
-                   isPlaying = false;
-               }
+       // Capacitor 모션 센서 초기화
+       document.addEventListener('DOMContentLoaded', async () => {
+           try {
+               const { Motion } = await import('@capacitor/motion');
+               
+               // 센서 권한 요청
+               await Motion.requestPermissions();
+               
+               // 방향 센서 리스너 등록
+               await Motion.addListener('orientation', (event) => {
+                   const { beta, gamma } = event;
+                   updateBubbles(beta, gamma);
+                   updateOutriggerValues(calculateHeights(beta, gamma));
+               });
+           } catch (error) {
+               console.error('센서 초기화 실패:', error);
            }
-       }
+       });
 
-       // 기존 함수들...
        function calculateHeights(beta, gamma) {
            const fbRadians = beta * (Math.PI / 180);
            const lrRadians = gamma * (Math.PI / 180);
@@ -149,47 +247,7 @@
                element.textContent = `${absHeight}cm`;
                element.className = className;
            });
-
-           // 알림음 재생 확인
-           playAlertIfNeeded(heights);
        }
-
-       function handleOrientation(event) {
-           const beta = event.beta;
-           const gamma = event.gamma;
-
-           updateBubbles(beta, gamma);
-           updateOutriggerValues(calculateHeights(beta, gamma));
-       }
-
-       // 센서와 오디오 권한 요청
-       async function requestPermissions() {
-           try {
-               // 센서 권한 요청
-               if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-                   const sensorPermission = await DeviceOrientationEvent.requestPermission();
-                   if (sensorPermission === 'granted') {
-                       window.addEventListener('deviceorientation', handleOrientation);
-                   }
-               } else {
-                   window.addEventListener('deviceorientation', handleOrientation);
-               }
-
-               // 오디오 컨텍스트 초기화 (자동 재생 정책 우회)
-               const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-               if (audioContext.state === 'suspended') {
-                   await audioContext.resume();
-               }
-           } catch (error) {
-               console.error('권한 요청 실패:', error);
-           }
-       }
-
-       // 페이지 로드 시 권한 요청
-       document.addEventListener('DOMContentLoaded', requestPermissions);
-
-       // 사용자 상호작용으로 인한 권한 요청 (iOS Safari를 위한 대비책)
-       document.body.addEventListener('click', requestPermissions, { once: true });
    </script>
 </body>
 </html>
